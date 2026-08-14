@@ -401,7 +401,7 @@
         const sub = i.Harga * i.qty;
         total += sub;
         itemsToDeduct.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
-        // FORMAT DIUBAH DARI (1x) MENJADI (1)
+        // Format Rincian tanpa bullet dan menggunakan format (1)
         rincianTextArr.push(`${i.Nama} (${i.qty})`);
       }
     });
@@ -423,14 +423,14 @@
     text += `*Rincian Barang:*%0A`;
 
     itemsToDeduct.forEach(i => {
-      text += `• ${i.nama} (${i.qty})%0A`; // FORMAT WA JUGA DIBUAT SAMA (1)
+      text += `${i.nama} (${i.qty})%0A`;
     });
-    text += `%0A*TOTAL BAYAR: Rp ${total.toLocaleString('id-ID')}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
+    text += `%0A*TOTAL BAYAR: Rp${total.toLocaleString('id-ID')}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
 
     // 1. Buka WhatsApp
     window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
 
-    // 2. Kirim data ke Google Sheets (tanpa reload halaman)
+    // 2. Kirim data ke Google Sheets
     fetch(API_URL, {
       method: "POST",
       mode: "no-cors",
@@ -443,12 +443,12 @@
           lokasi: lokasi,
           tanggalAmbil: tglFormatted,
           rincianText: rincianTextArr.join("\n"),
-          totalBayar: total
+          totalBayar: "Rp" + total.toLocaleString('id-ID')
         }
       })
     });
 
-    // 3. Reset keranjang & UI secara instan (tanpa perlu reload halaman)
+    // 3. Reset keranjang & UI
     setTimeout(() => {
       cart = {};
       updateCartBar();
@@ -456,7 +456,7 @@
       btnWA.disabled = false;
       btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
       document.getElementById("nama-pemesan").value = "";
-      renderProduk(allProducts); // Render ulang tampilan produk
+      renderProduk(allProducts);
     }, 500);
   }
   </script>
