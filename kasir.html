@@ -10,13 +10,19 @@
 </head>
 <body class="bg-gray-100 min-h-screen text-gray-800 pb-32">
 
-  <!-- Header -->
+  <!-- Header dengan Tombol Kembali ke Katalog -->
   <header class="bg-yellow-500 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
-    <h1 class="text-xl font-bold flex items-center gap-2">
-      <i class="fa-solid fa-cash-register"></i> Kasir Bee's Mart
-    </h1>
+    <div class="flex items-center gap-3">
+      <!-- Tombol Kembali ke index.html -->
+      <a href="index.html" class="w-9 h-9 bg-yellow-600 hover:bg-yellow-700 active:scale-95 rounded-lg flex items-center justify-center text-white transition shadow" title="Kembali ke Katalog">
+        <i class="fa-solid fa-arrow-left text-lg"></i>
+      </a>
+      <h1 class="text-lg font-bold flex items-center gap-2">
+        <i class="fa-solid fa-cash-register"></i> Kasir Bee's Mart
+      </h1>
+    </div>
     <button onclick="fetchProducts()" class="text-xs bg-yellow-600 hover:bg-yellow-700 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
-      <i class="fa-solid fa-rotate" id="icon-refresh"></i> Refresh Data
+      <i class="fa-solid fa-rotate" id="icon-refresh"></i> Refresh
     </button>
   </header>
 
