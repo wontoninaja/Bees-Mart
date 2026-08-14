@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kasir & Update Stok - Bee's Mart</title>
+  <title>Kasir Bee's Mart</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800 pb-20">
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-32">
 
   <!-- Header -->
   <header class="bg-yellow-500 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
     <h1 class="text-xl font-bold flex items-center gap-2">
       <i class="fa-solid fa-cash-register"></i> Kasir Bee's Mart
     </h1>
-    <div id="sync-status" class="text-xs bg-yellow-600 px-2 py-1 rounded hidden flex items-center gap-1">
-      <i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...
-    </div>
+    <button onclick="fetchProducts()" class="text-xs bg-yellow-600 hover:bg-yellow-700 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+      <i class="fa-solid fa-rotate" id="icon-refresh"></i> Refresh Data
+    </button>
   </header>
 
   <!-- Mode Switcher -->
@@ -34,226 +34,155 @@
     
     <!-- Scanner Section -->
     <div class="bg-white p-4 rounded-xl shadow mb-4">
-      <div id="reader" class="w-full rounded-lg overflow-hidden bg-gray-900 min-h-[200px] flex items-center justify-center text-white">
+      <div id="reader" class="w-full rounded-lg overflow-hidden bg-gray-900 min-h-[160px] flex items-center justify-center text-white text-sm">
         <span>Kamera Scanner Siap...</span>
       </div>
-      <div class="mt-3 flex gap-2">
-        <button id="btn-toggle-cam" onclick="toggleCamera()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+      <div class="mt-3">
+        <button id="btn-toggle-cam" onclick="toggleCamera()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-camera"></i> <span id="cam-action-text">Mulai Scanner</span>
         </button>
       </div>
     </div>
 
-    <!-- Manual Search Section -->
+    <!-- Filter & Cari Barang -->
     <div class="bg-white p-4 rounded-xl shadow mb-4">
-      <label class="block text-sm font-semibold mb-1 text-gray-700">Cari Barang Manual:</label>
-      <input type="text" id="search-input" onkeyup="filterProducts()" placeholder="Masukkan nama atau SKU barang..." class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
-      <div id="search-results" class="mt-2 max-h-40 overflow-y-auto divide-y divide-gray-100 hidden"></div>
-    </div>
-
-    <!-- Item Terpilih / List Edit -->
-    <div class="bg-white p-4 rounded-xl shadow mb-4">
-      <h2 class="font-bold text-lg mb-3 flex justify-between items-center">
-        <span id="section-title">Daftar Scan Kasir</span>
-        <span id="total-items-badge" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">0 Barang</span>
-      </h2>
-
-      <div id="items-container" class="space-y-3">
-        <p class="text-gray-400 text-sm text-center py-4" id="empty-state">Belum ada barang yang discan.</p>
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+        <input type="text" id="search-input" onkeyup="renderProductList()" placeholder="Cari nama atau SKU barang..." class="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm">
       </div>
     </div>
 
-    <!-- Bottom Submit Button -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t max-w-md mx-auto shadow-lg z-40">
-      <button id="btn-submit" onclick="prosesSelesai()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-check-circle text-lg"></i> <span id="btn-submit-text">Selesaikan Transaksi</span>
-      </button>
+    <!-- Daftar Semua Barang -->
+    <div class="bg-white p-4 rounded-xl shadow mb-4">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-bold text-gray-800" id="section-title">Daftar Barang</h2>
+        <span id="total-items-badge" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">0 Barang</span>
+      </div>
+
+      <!-- Container Item List -->
+      <div id="product-list-container" class="space-y-3">
+        <div class="text-center py-8 text-gray-400 text-sm">
+          <i class="fa-solid fa-spinner animate-spin text-2xl mb-2 text-yellow-500"></i>
+          <p>Memuat daftar barang...</p>
+        </div>
+      </div>
     </div>
 
   </main>
 
+  <!-- Sticky Bottom Checkout Bar -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 max-w-md mx-auto shadow-2xl z-40">
+    <div class="flex justify-between items-center mb-2" id="summary-container">
+      <span class="text-gray-600 font-semibold text-sm">Total Dipilih:</span>
+      <span class="text-lg font-bold text-green-600" id="grand-total-text">Rp0</span>
+    </div>
+
+    <button id="btn-submit" onclick="prosesSelesai()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+      <i class="fa-solid fa-check-circle text-lg"></i> <span id="btn-submit-text">Selesaikan Transaksi</span>
+    </button>
+  </div>
+
   <script>
     // ==========================================
     // CONFIGURATION
+    // Ganti URL dengan Web App Apps Script kamu
     // ==========================================
-    const API_URL = "ISI_URL_WEB_APP_GOOGLE_SCRIPT_KAMU_DI_SINI"; // Pastikan URL deployment kamu sudah benar!
+    const API_URL = "ISI_URL_WEB_APP_GOOGLE_SCRIPT_KAMU_DI_SINI"; 
 
     let allProducts = [];
-    let cart = {}; // Key: SKU/Nama, Value: { sku, nama, qty, harga, stokAwal }
-    let currentMode = 'kasir'; // 'kasir' atau 'restock'
+    let cart = {}; // Simpan qty belanjaan di memori HP: { "SKU/NAMA": qty }
+    let currentMode = 'kasir'; // 'kasir' / 'restock'
     let html5QrcodeScanner = null;
     let isScanning = false;
-    let syncTimeout = null;
 
-    // Load data awal saat halaman dibuka
     window.onload = function() {
       fetchProducts();
     };
 
     function fetchProducts() {
+      const icon = document.getElementById("icon-refresh");
+      if(icon) icon.classList.add("animate-spin");
+
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
           allProducts = data;
+          renderProductList();
         })
-        .catch(err => console.error("Gagal load produk:", err));
+        .catch(err => {
+          alert("Gagal memuat data barang: " + err);
+        })
+        .finally(() => {
+          if(icon) icon.classList.remove("animate-spin");
+        });
     }
 
-    // Ganti Mode (Kasir / Restock)
     function switchMode(mode) {
       currentMode = mode;
       const btnKasir = document.getElementById("btn-mode-kasir");
       const btnRestock = document.getElementById("btn-mode-restock");
       const secTitle = document.getElementById("section-title");
       const btnSubmitText = document.getElementById("btn-submit-text");
+      const summaryContainer = document.getElementById("summary-container");
 
       if (mode === 'kasir') {
         btnKasir.className = "flex-1 py-2 font-bold rounded-lg bg-yellow-500 text-white transition";
         btnRestock.className = "flex-1 py-2 font-bold rounded-lg bg-gray-200 text-gray-700 transition";
-        secTitle.innerText = "Daftar Scan Kasir";
+        secTitle.innerText = "Daftar Barang (Kasir)";
         btnSubmitText.innerText = "Selesaikan Transaksi";
+        summaryContainer.style.display = "flex";
       } else {
         btnRestock.className = "flex-1 py-2 font-bold rounded-lg bg-blue-600 text-white transition";
         btnKasir.className = "flex-1 py-2 font-bold rounded-lg bg-gray-200 text-gray-700 transition";
-        secTitle.innerText = "Daftar Tambah Stok";
-        btnSubmitText.innerText = "Simpan Tambah Stok";
+        secTitle.innerText = "Daftar Barang (Restock)";
+        btnSubmitText.innerText = "Simpan Restock Stok";
+        summaryContainer.style.display = "none";
       }
-      renderCart();
+      renderProductList();
     }
 
-    // Toggle Camera QR Scanner
-    function toggleCamera() {
-      const actionText = document.getElementById("cam-action-text");
-      if (isScanning) {
-        html5QrcodeScanner.stop().then(() => {
-          isScanning = false;
-          actionText.innerText = "Mulai Scanner";
-          document.getElementById("reader").innerHTML = `<span class="text-gray-400">Kamera Diberhentikan</span>`;
-        });
-      } else {
-        html5QrcodeScanner = new Html5Qrcode("reader");
-        html5QrcodeScanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 150 } },
-          onScanSuccess
-        ).then(() => {
-          isScanning = true;
-          actionText.innerText = "Hentikan Scanner";
-        }).catch(err => alert("Gagal membuka kamera: " + err));
-      }
-    }
+    function renderProductList() {
+      const container = document.getElementById("product-list-container");
+      const searchKeyword = document.getElementById("search-input").value.toLowerCase().trim();
 
-    function onScanSuccess(decodedText) {
-      let found = allProducts.find(p => p.SKU.toString().trim() === decodedText.trim());
-      if (found) {
-        addToCart(found);
-      } else {
-        alert("Barang dengan SKU/Barcode " + decodedText + " tidak ditemukan!");
-      }
-    }
+      let filtered = allProducts.filter(p => 
+        p.Nama.toLowerCase().includes(searchKeyword) || 
+        (p.SKU && p.SKU.toLowerCase().includes(searchKeyword))
+      );
 
-    // Search Manual
-    function filterProducts() {
-      const q = document.getElementById("search-input").value.toLowerCase().trim();
-      const resContainer = document.getElementById("search-results");
+      document.getElementById("total-items-badge").innerText = `${filtered.length} Barang`;
 
-      if (!q) {
-        resContainer.classList.add("hidden");
-        return;
-      }
-
-      const matches = allProducts.filter(p => 
-        p.Nama.toLowerCase().includes(q) || p.SKU.toLowerCase().includes(q)
-      ).slice(0, 5);
-
-      if (matches.length > 0) {
-        resContainer.innerHTML = matches.map(p => `
-          <div onclick="selectProduct('${p.SKU}')" class="p-2 hover:bg-yellow-50 cursor-pointer flex justify-between items-center text-sm">
-            <div>
-              <div class="font-bold text-gray-800">${p.Nama}</div>
-              <div class="text-xs text-gray-400">SKU: ${p.SKU || 'Tidak ada'} | Stok: ${p.Stok}</div>
-            </div>
-            <span class="text-yellow-600 font-semibold">Rp${p.Harga.toLocaleString('id-ID')}</span>
-          </div>
-        `).join('');
-        resContainer.classList.remove("hidden");
-      } else {
-        resContainer.innerHTML = `<div class="p-2 text-xs text-gray-400 text-center">Barang tidak ditemukan</div>`;
-        resContainer.classList.remove("hidden");
-      }
-    }
-
-    function selectProduct(sku) {
-      let p = allProducts.find(item => item.SKU.toString() === sku.toString());
-      if (p) {
-        addToCart(p);
-        document.getElementById("search-input").value = "";
-        document.getElementById("search-results").classList.add("hidden");
-      }
-    }
-
-    // Cart Operations (Lokal/Instan)
-    function addToCart(p) {
-      const key = p.SKU || p.Nama;
-      if (cart[key]) {
-        cart[key].qty += 1;
-      } else {
-        cart[key] = {
-          sku: p.SKU,
-          nama: p.Nama,
-          qty: 1,
-          harga: p.Harga,
-          stokAwal: p.Stok
-        };
-      }
-      renderCart();
-    }
-
-    // Tombol (+) dan (-) yang Instant Tanpa Delay Latency/Network!
-    function updateQty(key, delta) {
-      if (cart[key]) {
-        cart[key].qty += delta;
-        if (cart[key].qty <= 0) {
-          delete cart[key];
-        }
-        renderCart();
-      }
-    }
-
-    function renderCart() {
-      const container = document.getElementById("items-container");
-      const keys = Object.keys(cart);
-      document.getElementById("total-items-badge").innerText = `${keys.length} Jenis Barang`;
-
-      if (keys.length === 0) {
-        container.innerHTML = `<p class="text-gray-400 text-sm text-center py-4" id="empty-state">Belum ada barang dipilih.</p>`;
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-gray-400 text-sm">Barang tidak ditemukan.</div>`;
+        updateGrandTotal();
         return;
       }
 
       let html = "";
-      let totalBayar = 0;
-
-      keys.forEach(key => {
-        const item = cart[key];
-        const subtotal = item.harga * item.qty;
-        totalBayar += subtotal;
+      filtered.forEach(p => {
+        const key = p.SKU || p.Nama;
+        const currentQty = cart[key] || 0;
 
         html += `
-          <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 ${currentQty > 0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50'} transition">
             <div class="flex-1 pr-2">
-              <div class="font-bold text-gray-800 text-sm">${item.nama}</div>
-              <div class="text-xs text-gray-500">
-                ${currentMode === 'kasir' ? 'Harga: Rp' + item.harga.toLocaleString('id-ID') : 'Stok Awal: ' + item.stokAwal}
+              <div class="font-bold text-gray-800 text-sm">${p.Nama}</div>
+              <div class="text-xs text-gray-500 mt-0.5">
+                ${currentMode === 'kasir' ? 'Rp' + p.Harga.toLocaleString('id-ID') + ' | ' : ''}
+                <span class="${p.Stok <= 0 ? 'text-red-500 font-bold' : ''}">Stok: ${p.Stok}</span>
               </div>
             </div>
 
-            <!-- Qty Counter -->
+            <!-- Tombol Counter Fast UI (Ringan di HP) -->
             <div class="flex items-center gap-2">
-              <button onclick="updateQty('${key}', -1)" class="w-8 h-8 rounded-lg bg-gray-200 hover:bg-gray-300 font-bold text-gray-700 flex items-center justify-center text-base active:scale-95 transition">
-                -
-              </button>
-              <span class="w-8 text-center font-bold text-gray-800 text-sm">${item.qty}</span>
-              <button onclick="updateQty('${key}', 1)" class="w-8 h-8 rounded-lg bg-yellow-500 hover:bg-yellow-600 font-bold text-white flex items-center justify-center text-base active:scale-95 transition">
+              ${currentQty > 0 ? `
+                <button onclick="updateQty('${key}', -1)" class="w-8 h-8 rounded-lg bg-red-100 text-red-600 font-bold hover:bg-red-200 active:scale-90 transition flex items-center justify-center">
+                  -
+                </button>
+                <span class="w-6 text-center font-bold text-sm text-gray-800">${currentQty}</span>
+              ` : ''}
+
+              <button onclick="updateQty('${key}', 1)" class="w-8 h-8 rounded-lg ${currentQty > 0 ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700'} font-bold hover:bg-yellow-600 active:scale-90 transition flex items-center justify-center">
                 +
               </button>
             </div>
@@ -261,23 +190,70 @@
         `;
       });
 
-      if (currentMode === 'kasir') {
-        html += `
-          <div class="mt-4 pt-3 border-t flex justify-between items-center font-bold text-lg">
-            <span>Total:</span>
-            <span class="text-green-600">Rp${totalBayar.toLocaleString('id-ID')}</span>
-          </div>
-        `;
-      }
-
       container.innerHTML = html;
+      updateGrandTotal();
     }
 
-    // Kirim data batch ke Google Sheets saat tombol "Selesaikan" diklik
+    // Fungsi pengubah angka yang CEPAT TANPA NETWORK LAG
+    function updateQty(key, delta) {
+      if (!cart[key]) cart[key] = 0;
+      cart[key] += delta;
+
+      if (cart[key] <= 0) {
+        delete cart[key];
+      }
+
+      renderProductList();
+    }
+
+    function updateGrandTotal() {
+      let total = 0;
+      Object.keys(cart).forEach(key => {
+        let p = allProducts.find(item => (item.SKU || item.Nama) === key);
+        if (p) {
+          total += (p.Harga * cart[key]);
+        }
+      });
+      document.getElementById("grand-total-text").innerText = "Rp" + total.toLocaleString('id-ID');
+    }
+
+    // Camera Scan Logika
+    function toggleCamera() {
+      const actionText = document.getElementById("cam-action-text");
+      if (isScanning) {
+        html5QrcodeScanner.stop().then(() => {
+          isScanning = false;
+          actionText.innerText = "Mulai Scanner";
+          document.getElementById("reader").innerHTML = `<span>Kamera Diberhentikan</span>`;
+        });
+      } else {
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        html5QrcodeScanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 220, height: 130 } },
+          onScanSuccess
+        ).then(() => {
+          isScanning = true;
+          actionText.innerText = "Hentikan Scanner";
+        }).catch(err => alert("Gagal mengaktifkan kamera: " + err));
+      }
+    }
+
+    function onScanSuccess(decodedText) {
+      let found = allProducts.find(p => p.SKU && p.SKU.toString().trim() === decodedText.trim());
+      if (found) {
+        const key = found.SKU || found.Nama;
+        updateQty(key, 1);
+      } else {
+        alert("Barang dengan Barcode " + decodedText + " tidak ditemukan!");
+      }
+    }
+
+    // Kirim Data Batch ke Google Sheets saat "Selesaikan Transaksi" diklik
     function prosesSelesai() {
       const keys = Object.keys(cart);
       if (keys.length === 0) {
-        alert("Belum ada barang di dalam daftar!");
+        alert("Belum ada barang yang dipilih!");
         return;
       }
 
@@ -286,11 +262,14 @@
       btnSubmit.classList.add("opacity-50");
       btnSubmit.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses...`;
 
-      const itemsToSend = keys.map(k => ({
-        sku: cart[k].sku,
-        nama: cart[k].nama,
-        qty: cart[k].qty
-      }));
+      const itemsToSend = keys.map(k => {
+        let p = allProducts.find(item => (item.SKU || item.Nama) === k);
+        return {
+          sku: p ? p.SKU : k,
+          nama: p ? p.Nama : k,
+          qty: cart[k]
+        };
+      });
 
       const payload = {
         tipe: currentMode === 'kasir' ? "Kasir Scan" : "Restock Barang",
@@ -304,13 +283,12 @@
         body: JSON.stringify(payload)
       })
       .then(() => {
-        alert(currentMode === 'kasir' ? "Transaksi Berhasil Dicatat!" : "Stok Berhasil Ditambahkan!");
+        alert(currentMode === 'kasir' ? "Transaksi Kasir Berhasil!" : "Restock Berhasil!");
         cart = {};
-        renderCart();
-        fetchProducts(); // Refresh stok lokal dari server
+        fetchProducts(); // Auto reload stok terbaru dari spreadsheet
       })
       .catch(err => {
-        alert("Gagal mengirim data: " + err);
+        alert("Gagal memperbarui stok: " + err);
       })
       .finally(() => {
         btnSubmit.disabled = false;
