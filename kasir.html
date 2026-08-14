@@ -55,7 +55,7 @@
     <!-- Daftar Semua Barang -->
     <div class="bg-white p-4 rounded-xl shadow mb-4">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="font-bold text-gray-800" id="section-title">Daftar Barang</h2>
+        <h2 class="font-bold text-gray-800" id="section-title">Daftar Barang (Kasir)</h2>
         <span id="total-items-badge" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">0 Barang</span>
       </div>
 
@@ -85,7 +85,6 @@
   <script>
     // ==========================================
     // CONFIGURATION
-    // Ganti URL dengan Web App Apps Script kamu
     // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycbx7iQEVKtryDmAkBojsDvoPS6faRKwpTfdY4Is6LvE2nirmPqKXZ4SAyddwGeI7tVEK/exec"; 
 
@@ -173,14 +172,18 @@
               </div>
             </div>
 
-            <!-- Tombol Counter Fast UI (Ringan di HP) -->
-            <div class="flex items-center gap-2">
+            <!-- Tombol Counter dengan Input Angka Ketik Manual -->
+            <div class="flex items-center gap-1">
               ${currentQty > 0 ? `
                 <button onclick="updateQty('${key}', -1)" class="w-8 h-8 rounded-lg bg-red-100 text-red-600 font-bold hover:bg-red-200 active:scale-90 transition flex items-center justify-center">
                   -
                 </button>
-                <span class="w-6 text-center font-bold text-sm text-gray-800">${currentQty}</span>
               ` : ''}
+
+              <input type="number" min="0" value="${currentQty}" 
+                onchange="setManualQty('${key}', this.value)" 
+                onfocus="this.select()"
+                class="w-12 h-8 text-center font-bold text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
 
               <button onclick="updateQty('${key}', 1)" class="w-8 h-8 rounded-lg ${currentQty > 0 ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700'} font-bold hover:bg-yellow-600 active:scale-90 transition flex items-center justify-center">
                 +
@@ -194,7 +197,7 @@
       updateGrandTotal();
     }
 
-    // Fungsi pengubah angka yang CEPAT TANPA NETWORK LAG
+    // Fungsi Pengubah Kuantitas Lewat Tombol (+/-)
     function updateQty(key, delta) {
       if (!cart[key]) cart[key] = 0;
       cart[key] += delta;
@@ -203,6 +206,17 @@
         delete cart[key];
       }
 
+      renderProductList();
+    }
+
+    // Fungsi Pengubah Kuantitas Lewat Ketik Manual di Input
+    function setManualQty(key, value) {
+      let val = parseInt(value) || 0;
+      if (val <= 0) {
+        delete cart[key];
+      } else {
+        cart[key] = val;
+      }
       renderProductList();
     }
 
