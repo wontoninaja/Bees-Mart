@@ -384,7 +384,7 @@
     if (!tgl) { alert("Harap pilih tanggal pengambilan!"); return; }
 
     const btnWA = document.getElementById("btn-checkout-wa");
-    btnWA.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Membuka WA...`;
+    btnWA.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses Pesanan...`;
     btnWA.disabled = true;
 
     const lokasi = document.querySelector('input[name="lokasi"]:checked').value;
@@ -401,7 +401,8 @@
         const sub = i.Harga * i.qty;
         total += sub;
         itemsToDeduct.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
-        rincianTextArr.push(`${i.Nama} (${i.qty}x)`);
+        // FORMAT DIUBAH DARI (1x) MENJADI (1)
+        rincianTextArr.push(`${i.Nama} (${i.qty})`);
       }
     });
 
@@ -412,6 +413,7 @@
       return;
     }
 
+    // Format Pesan WA
     let text = `*PESANAN BARU - BEE'S MART*%0A`;
     text += `-----------------------------------%0A`;
     text += `👤 *Nama:* ${nama}%0A`;
@@ -421,12 +423,14 @@
     text += `*Rincian Barang:*%0A`;
 
     itemsToDeduct.forEach(i => {
-      text += `• ${i.nama} (${i.qty}x)%0A`;
+      text += `• ${i.nama} (${i.qty})%0A`; // FORMAT WA JUGA DIBUAT SAMA (1)
     });
     text += `%0A*TOTAL BAYAR: Rp ${total.toLocaleString('id-ID')}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
 
+    // 1. Buka WhatsApp
     window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
 
+    // 2. Kirim data ke Google Sheets (tanpa reload halaman)
     fetch(API_URL, {
       method: "POST",
       mode: "no-cors",
@@ -442,14 +446,18 @@
           totalBayar: total
         }
       })
-    }).finally(() => {
+    });
+
+    // 3. Reset keranjang & UI secara instan (tanpa perlu reload halaman)
+    setTimeout(() => {
       cart = {};
       updateCartBar();
       closeModal();
       btnWA.disabled = false;
       btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
-      location.reload();
-    });
+      document.getElementById("nama-pemesan").value = "";
+      renderProduk(allProducts); // Render ulang tampilan produk
+    }, 500);
   }
   </script>
 </body>
