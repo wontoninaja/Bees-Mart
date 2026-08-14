@@ -14,10 +14,7 @@
       --bm-brown: #4a2c11;
       --bm-bg: #fdfbf7;
     }
-    body {
-      background-color: var(--bm-bg);
-      color: #332211;
-    }
+    body { background-color: var(--bm-bg); color: #332211; }
     .bg-bm-brown { background-color: var(--bm-brown); }
     .text-bm-brown { color: var(--bm-brown); }
   </style>
@@ -42,7 +39,7 @@
 
   <main class="max-w-md mx-auto p-4 space-y-4">
 
-    <!-- Mode Switcher (Kasir vs Tambah Stok) -->
+    <!-- Mode Switcher -->
     <div class="grid grid-cols-2 gap-2 bg-amber-100/70 p-1 rounded-xl border border-amber-200">
       <button id="tab-kasir" onclick="switchMode('kasir')" class="py-2 rounded-lg text-xs font-black transition bg-bm-brown text-amber-400 shadow-sm flex items-center justify-center gap-1.5">
         <i class="fa-solid fa-cart-shopping"></i> Mode Kasir
@@ -61,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Area Pencarian + Tombol Kamera Barcode -->
+    <!-- Area Pencarian + Tombol Kamera -->
     <div class="flex gap-2">
       <div class="relative flex-1">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-700/50 text-xs"></i>
@@ -69,8 +66,7 @@
           class="w-full bg-white border border-amber-200 pl-9 pr-4 py-2.5 rounded-xl text-sm text-bm-brown outline-none focus:ring-2 focus:ring-amber-400">
       </div>
       
-      <!-- Tombol Buka Kamera Barcode -->
-      <button onclick="bukaKameraScanner()" class="bg-amber-400 hover:bg-amber-500 text-bm-brown px-3.5 rounded-xl font-bold border border-amber-300 shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5 shrink-0" title="Scan Barcode Kamera">
+      <button onclick="bukaKameraScanner()" class="bg-amber-400 hover:bg-amber-500 text-bm-brown px-3.5 rounded-xl font-bold border border-amber-300 shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5 shrink-0">
         <i class="fa-solid fa-camera text-base"></i>
       </button>
     </div>
@@ -87,7 +83,7 @@
 
   <!-- MODAL KAMERA SCANNER BARCODE -->
   <div id="modal-scanner" class="fixed inset-0 bg-bm-brown/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl border-2 border-amber-300 text-center">
       <div class="flex justify-between items-center pb-2 border-b border-amber-100 mb-3">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-barcode text-amber-500"></i>
@@ -95,10 +91,7 @@
         </div>
         <button onclick="tutupKameraScanner()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-
-      <!-- Container Tampilan Kamera -->
       <div id="reader" class="w-full bg-slate-100 rounded-2xl overflow-hidden border border-amber-200 min-h-[220px]"></div>
-
       <p class="text-[11px] text-slate-500 mt-3">Arahkan kamera HP ke kode barcode produk.</p>
     </div>
   </div>
@@ -139,6 +132,7 @@
     });
 
   function switchMode(mode) {
+    if (currentMode === mode) return; // Mencegah reload jika mode sama (Anti-lag)
     currentMode = mode;
     cart = {}; 
     updateSubmitBar();
@@ -168,38 +162,40 @@
       btnProses.innerHTML = `<i class="fa-solid fa-plus-circle"></i> Tambah Stok Barang`;
     }
 
-    renderProduk(allProducts);
+    filterProduk(); // Lebih cepat dari render full
   }
 
   function renderProduk(list) {
     const container = document.getElementById("product-list");
-    container.innerHTML = "";
+    let html = "";
 
     list.forEach(item => {
       const stok = Number(item.Stok) || 0;
       const qty = cart[item.idUnik] ? cart[item.idUnik].qty : 0;
+      const hargaFormat = Number(item.Harga) > 0 ? `Rp ${Number(item.Harga).toLocaleString('id-ID')}` : 'Rp -';
 
-      const card = document.createElement("div");
-      card.className = "bg-white p-3 rounded-xl border border-amber-200/70 shadow-sm flex items-center justify-between gap-3";
-
-      card.innerHTML = `
-        <div>
-          <span class="text-[9px] font-extrabold text-amber-800/40 uppercase">${item.SKU || 'NO-SKU'}</span>
-          <h3 class="font-bold text-bm-brown text-xs">${item.Nama}</h3>
-          <p class="text-[10px] text-amber-800/60 font-semibold mt-0.5">Stok Saat Ini: <span class="font-extrabold text-bm-brown">${stok}</span></p>
-        </div>
-        <div class="flex items-center gap-1.5">
-          ${qty > 0 ? `
-            <button onclick="changeQty('${item.idUnik}', -1)" class="w-7 h-7 bg-amber-100 text-bm-brown font-extrabold rounded-lg text-xs shadow-sm">-</button>
-            <span class="text-xs font-black w-6 text-center text-bm-brown">${qty}</span>
-          ` : ''}
-          <button onclick="changeQty('${item.idUnik}', 1)" class="${currentMode === 'kasir' ? 'bg-amber-400 hover:bg-amber-500' : 'bg-blue-500 hover:bg-blue-600 text-white'} text-bm-brown font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
-            + ${qty > 0 ? '' : (currentMode === 'kasir' ? 'Pilih' : 'Tambah')}
-          </button>
+      html += `
+        <div class="bg-white p-3 rounded-xl border border-amber-200/70 shadow-sm flex items-center justify-between gap-3">
+          <div>
+            <span class="text-[9px] font-extrabold text-amber-800/40 uppercase">${item.SKU || 'NO-SKU'}</span>
+            <h3 class="font-bold text-bm-brown text-xs">${item.Nama}</h3>
+            <p class="text-[11px] font-black text-amber-600">${hargaFormat}</p>
+            <p class="text-[10px] text-amber-800/60 font-semibold mt-0.5">Stok Saat Ini: <span class="font-extrabold text-bm-brown">${stok}</span></p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            ${qty > 0 ? `
+              <button onclick="changeQty('${item.idUnik}', -1)" class="w-7 h-7 bg-amber-100 text-bm-brown font-extrabold rounded-lg text-xs shadow-sm">-</button>
+              <span class="text-xs font-black w-6 text-center text-bm-brown">${qty}</span>
+            ` : ''}
+            <button onclick="changeQty('${item.idUnik}', 1)" class="${currentMode === 'kasir' ? 'bg-amber-400 hover:bg-amber-500' : 'bg-blue-500 hover:bg-blue-600 text-white'} text-bm-brown font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
+              + ${qty > 0 ? '' : (currentMode === 'kasir' ? 'Pilih' : 'Tambah')}
+            </button>
+          </div>
         </div>
       `;
-      container.appendChild(card);
     });
+
+    container.innerHTML = html;
   }
 
   function changeQty(idUnik, delta) {
@@ -218,7 +214,7 @@
     }
 
     updateSubmitBar();
-    renderProduk(allProducts);
+    filterProduk();
   }
 
   function filterProduk() {
@@ -227,35 +223,23 @@
     renderProduk(filtered);
   }
 
-  /* --- FUNGSI SCANNER KAMERA --- */
   function bukaKameraScanner() {
     document.getElementById("modal-scanner").classList.remove("hidden");
-    
-    html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-      fps: 10, 
-      qrbox: { width: 220, height: 150 },
-      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-    });
-
+    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 220, height: 150 } });
     html5QrcodeScanner.render((decodedText) => {
       const codeClean = decodedText.trim();
       const matched = allProducts.find(p => p.SKU && p.SKU.toString().trim() === codeClean);
-
       if (matched) {
         changeQty(matched.idUnik, 1);
         tutupKameraScanner();
       } else {
         alert(`SKU Barcode "${codeClean}" tidak ditemukan di database!`);
       }
-    }, (error) => {
-      // Ignore scan frame error
     });
   }
 
   function tutupKameraScanner() {
-    if (html5QrcodeScanner) {
-      html5QrcodeScanner.clear().catch(() => {});
-    }
+    if (html5QrcodeScanner) html5QrcodeScanner.clear().catch(() => {});
     document.getElementById("modal-scanner").classList.add("hidden");
   }
 
@@ -276,9 +260,7 @@
   function prosesTransaksi() {
     const items = [];
     Object.values(cart).forEach(i => {
-      if (i.qty > 0) {
-        items.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
-      }
+      if (i.qty > 0) items.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
     });
 
     if (items.length === 0) return;
@@ -287,14 +269,12 @@
     btn.disabled = true;
     btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses...`;
 
-    const tipeAksi = currentMode === 'kasir' ? 'Transaksi Kasir' : 'Restock Stok (Barang Masuk)';
-
     fetch(API_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({
-        tipe: tipeAksi,
+        tipe: currentMode === 'kasir' ? 'Transaksi Kasir' : 'Restock Stok (Barang Masuk)',
         items: items
       })
     }).finally(() => {
