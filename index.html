@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katalog Toko Online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 pb-24">
+  <!-- Header & Search -->
+  <div class="sticky top-0 bg-white shadow-sm z-10 p-4">
+    <div class="max-w-4xl mx-auto flex gap-2">
+      <input type="text" id="search" oninput="filterProduk()" placeholder="Cari barang..." class="w-full p-2 border rounded-lg outline-none focus:border-blue-500">
+    </div>
+  </div>
+
+  <!-- Container Produk -->
+  <div class="max-w-4xl mx-auto p-4">
+    <div id="product-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <p class="col-span-full text-center text-gray-500">Memuat produk...</p>
+    </div>
+  </div>
+
+  <!-- Floating Bar Keranjang -->
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg hidden">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <div>
+        <p class="text-xs text-gray-500"><span id="cart-count">0</span> Item dipilih</p>
+        <p class="text-lg font-bold text-blue-600" id="cart-total">Rp 0</p>
+      </div>
+      <button onclick="checkoutWA()" class="bg-green-500 hover:bg-green-600 text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+        Pesan via WA
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ GANTI DENGAN URL WEB APP APPS SCRIPT KAMU (/exec)
+    const API_URL = "https://script.google.com/macros/s/AKfycbwuknAge8TBp17gvaqB3KGIKFEFWiYacghiDiXK3uTIXrhwfvfOtAIyKkf71u4rN0KV/exec"; 
+    
+    // ⚠️ GANTI DENGAN NOMOR WA KAMU (Format 628xxx, tanpa + atau 0 depan)
+    const NOMOR_WA = "628889976983"; 
+
+    let allProducts = [];
+    let cart = {};
+
+    // Load Data Produk dari Spreadsheet
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        allProducts = data;
+        renderProduk(allProducts);
+      })
+      .catch(err => {
+        document.getElementById("product-list").innerHTML = `<p class="col-span-full text-center text-red-500">Gagal memuat data dari Spreadsheet.</p>`;
+      });
+
+    function renderProduk(list) {
+      const container = document.getElementById("product-list");
+      container.innerHTML = "";
+
+      if(list.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-center text-gray-400">Barang tidak ditemukan.</p>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const stokAda = item.Stok > 0;
+        container.innerHTML += `
+          <div class="bg-white p-3 rounded-xl border flex flex-col justify-between shadow-sm">
+            <div>
+              <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">${item.SKU || 'No-SKU'}</span>
+              <h3 class="font-bold text-gray-800 text-sm mt-1">${item.Nama}</h3>
+              <p class="text-xs text-gray-500">${item.Berat}</p>
+              <p class="font-semibold text-blue-600 text-sm mt-2">Rp ${Number(item.Harga).toLocaleString('id-ID')}</p>
+            </div>
+            <div class="mt-3">
+              ${stokAda 
+                ? `<button onclick="addToCart('${item.SKU}')" class="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold text-xs py-2 rounded-lg transition">
+                    + Tambah (${item.Stok})
+                   </button>`
+                : `<button disabled class="w-full bg-gray-100 text-gray-400 font-semibold text-xs py-2 rounded-lg cursor-not-allowed">Habis</button>`
+              }
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filterProduk() {
+      const q = document.getElementById("search").value.toLowerCase();
+      const filtered = allProducts.filter(p => p.Nama.toLowerCase().includes(q) || p.SKU.toLowerCase().includes(q));
+      renderProduk(filtered);
+    }
+
+    function addToCart(sku) {
+      const item = allProducts.find(p => p.SKU === sku);
+      if (!cart[sku]) cart[sku] = { ...item, qty: 0 };
+      if (cart[sku].qty < item.Stok) {
+        cart[sku].qty++;
+        updateCartBar();
+      } else {
+        alert("Stok maksimal tercapai!");
+      }
+    }
+
+    function updateCartBar() {
+      let total = 0;
+      let count = 0;
+      Object.values(cart).forEach(i => {
+        total += i.Harga * i.qty;
+        count += i.qty;
+      });
+
+      if (count > 0) {
+        document.getElementById("cart-bar").classList.remove("hidden");
+        document.getElementById("cart-count").innerText = count;
+        document.getElementById("cart-total").innerText = "Rp " + total.toLocaleString('id-ID');
+      }
+    }
+
+    function checkoutWA() {
+      let text = "*Halo, Saya mau pesan:* %0A%0A";
+      let total = 0;
+
+      Object.values(cart).forEach(i => {
+        if(i.qty > 0) {
+          const sub = i.Harga * i.qty;
+          total += sub;
+          text += `• ${i.Nama} (${i.qty}x) = Rp ${sub.toLocaleString('id-ID')}%0A`;
+        }
+      });
+
+      text += `%0A*Total: Rp ${total.toLocaleString('id-ID')}*%0A%0AMohon diproses ya kak!`;
+      window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
+    }
+  </script>
+</body>
+</html>
