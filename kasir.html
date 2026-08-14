@@ -1,100 +1,132 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kasir Scan Barcode</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library Scan Barcode Kamera Gratis -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
-  </head>
-  <body class="bg-slate-100 p-4 min-h-screen">
-    <div class="max-w-md mx-auto bg-white p-5 rounded-xl shadow-lg">
-      <h1 class="text-xl font-bold text-center mb-4 text-slate-800">
-        📷 Kasir Scan Toko
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bees Mart - Kasir Scan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-100 p-4 min-h-screen">
+  <div class="max-w-md mx-auto bg-white p-5 rounded-2xl shadow-xl">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b">
+      <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <span class="text-amber-500">📷</span> Kasir Scan Barcode
       </h1>
+      <a href="/" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-lg">
+        ← Katalog
+      </a>
+    </div>
 
-      <!-- Area Scanner Kamera -->
-      <div
-        id="reader"
-        class="w-full bg-black rounded-lg overflow-hidden mb-4"
-      ></div>
+    <!-- Pilihan Kamera / Start Stop -->
+    <div class="mb-3 flex gap-2">
+      <button onclick="startScanner()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm">
+        <i class="fa-solid fa-camera"></i> Buka Kamera
+      </button>
+      <button onclick="stopScanner()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2">
+        <i class="fa-solid fa-stop"></i> Matikan Kamera
+      </button>
+    </div>
 
-      <!-- Status Output -->
-      <div
-        id="status"
-        class="text-center font-semibold text-sm p-3 mb-4 rounded-lg bg-gray-100 text-gray-700"
-      >
-        Arahkan kamera ke Barcode / QR
-      </div>
+    <!-- Area Kamera Scanner -->
+    <div id="reader" class="w-full bg-black rounded-xl overflow-hidden min-h-[250px] flex items-center justify-center text-white text-xs text-center p-4">
+      Tekan 'Buka Kamera' untuk memulai scan
+    </div>
 
-      <!-- Log Scan Terakhir -->
-      <div
-        id="result-box"
-        class="hidden border border-green-200 bg-green-50 p-4 rounded-lg mb-4"
-      >
-        <p class="text-xs text-green-600 font-bold uppercase">
-          Berhasil Dipotong!
-        </p>
-        <p id="scanned-sku" class="text-sm font-bold text-slate-800"></p>
-        <p id="scanned-stok" class="text-xs text-slate-600"></p>
+    <!-- Status Text -->
+    <div id="status" class="text-center font-bold text-xs p-3 my-4 rounded-xl bg-slate-100 text-slate-600">
+      Arahkan kamera ke Barcode / QR Produk
+    </div>
+
+    <!-- Alternatif Input Manual (Ganti Barcode jika kamera bermasalah) -->
+    <div class="border-t pt-4">
+      <p class="text-[11px] font-bold text-slate-500 mb-2 uppercase">Atau Input Kode SKU Manual:</p>
+      <div class="flex gap-2">
+        <input type="text" id="manual-sku" placeholder="Contoh: 89912345..." class="w-full bg-slate-50 border p-2 rounded-xl text-xs outline-none focus:border-amber-400">
+        <button onclick="potongManual()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-sm">
+          Potong Stok
+        </button>
       </div>
     </div>
 
-    <script>
-      // ⚠️ GANTI DENGEN URL WEB APP APPS SCRIPT KAMU YANG AKHIRAN /exec
-      const API_URL = "https://script.google.com/macros/s/AKfycbwuknAge8TBp17gvaqB3KGIKFEFWiYacghiDiXK3uTIXrhwfvfOtAIyKkf71u4rN0KV/exec";
+  </div>
 
-      let isProcessing = false;
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx7iQEVKtryDmAkBojsDvoPS6faRKwpTfdY4Is6LvE2nirmPqKXZ4SAyddwGeI7tVEK/exec"; 
 
-      function onScanSuccess(decodedText) {
-        if (isProcessing) return;
-        isProcessing = true;
+    let html5QrCode;
+    let isProcessing = false;
 
-        const statusEl = document.getElementById("status");
-        statusEl.className =
-          "text-center font-semibold text-sm p-3 mb-4 rounded-lg bg-yellow-100 text-yellow-800";
-        statusEl.innerText = `Memproses SKU: ${decodedText}...`;
-
-        fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({ sku: decodedText, qty: 1 }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.status === "success") {
-              statusEl.className =
-                "text-center font-semibold text-sm p-3 mb-4 rounded-lg bg-green-100 text-green-800";
-              statusEl.innerText = "Stok Berhasil Berkurang!";
-
-              document.getElementById("result-box").classList.remove("hidden");
-              document.getElementById("scanned-sku").innerText =
-                "SKU: " + data.sku;
-              document.getElementById("scanned-stok").innerText =
-                "Sisa Stok di Database: " + data.sisaStok;
-            } else {
-              statusEl.className =
-                "text-center font-semibold text-sm p-3 mb-4 rounded-lg bg-red-100 text-red-800";
-              statusEl.innerText = "Gagal: " + data.message;
-            }
-          })
-          .catch((err) => {
-            statusEl.className =
-              "text-center font-semibold text-sm p-3 mb-4 rounded-lg bg-red-100 text-red-800";
-            statusEl.innerText = "Error koneksi / server.";
-          })
-          .finally(() => {
-            setTimeout(() => {
-              isProcessing = false;
-            }, 2000); // Delay 2 detik agar tidak ter-scan ganda
-          });
+    function startScanner() {
+      if(!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
       }
 
-      const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-        fps: 10,
-        qrbox: { width: 250, height: 150 },
+      const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+      // Memaksa kamera BELAKANG HP yang terbuka (facingMode: environment)
+      html5QrCode.start(
+        { facingMode: "environment" }, 
+        config, 
+        onScanSuccess
+      ).catch(err => {
+        document.getElementById("status").className = "text-center font-bold text-xs p-3 my-4 rounded-xl bg-rose-100 text-rose-700";
+        document.getElementById("status").innerText = "Gagal membuka kamera: Mohon izinkan akses kamera di browser HP!";
       });
-      html5QrcodeScanner.render(onScanSuccess);
-    </script>
-  </body>
+    }
+
+    function stopScanner() {
+      if(html5QrCode) {
+        html5QrCode.stop().then(() => {
+          document.getElementById("reader").innerText = "Kamera Dimatikan.";
+        }).catch(err => console.log(err));
+      }
+    }
+
+    function processPotongStok(sku) {
+      if (isProcessing) return;
+      isProcessing = true;
+
+      const statusEl = document.getElementById("status");
+      statusEl.className = "text-center font-bold text-xs p-3 my-4 rounded-xl bg-amber-100 text-amber-800 animate-pulse";
+      statusEl.innerText = `Memproses SKU: ${sku}...`;
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ sku: sku, qty: 1, tipe: "Kasir Scan" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          statusEl.className = "text-center font-bold text-xs p-3 my-4 rounded-xl bg-emerald-100 text-emerald-800";
+          statusEl.innerText = `✅ SUKSES! ${data.nama || sku} terpotong 1. Sisa stok: ${data.sisaStok}`;
+        } else {
+          statusEl.className = "text-center font-bold text-xs p-3 my-4 rounded-xl bg-rose-100 text-rose-800";
+          statusEl.innerText = "❌ Gagal: " + data.message;
+        }
+      })
+      .catch(err => {
+        statusEl.className = "text-center font-bold text-xs p-3 my-4 rounded-xl bg-rose-100 text-rose-800";
+        statusEl.innerText = "Error koneksi / server.";
+      })
+      .finally(() => {
+        setTimeout(() => { isProcessing = false; }, 2000);
+      });
+    }
+
+    function onScanSuccess(decodedText) {
+      processPotongStok(decodedText);
+    }
+
+    function potongManual() {
+      const sku = document.getElementById("manual-sku").value.trim();
+      if(!sku) { alert("Masukkan SKU dulu!"); return; }
+      processPotongStok(sku);
+      document.getElementById("manual-sku").value = "";
+    }
+  </script>
+</body>
 </html>
