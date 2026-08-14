@@ -246,12 +246,39 @@
   function closeModal() { document.getElementById("modal-checkout").classList.add("hidden"); }
 
   function checkoutWA() {
-    const nama = document.getElementById("nama-pemesan").value.trim();
-    const tgl = document.getElementById("tanggal-pengambilan").value;
+  const nama = document.getElementById("nama-pemesan").value.trim();
+  const tgl = document.getElementById("tanggal-pengambilan").value;
 
-    if (!nama) { alert("Harap isi nama pemesan!"); return; }
-    if (!tgl) { alert("Harap pilih tanggal pengambilan!"); return; }
+  if (!nama) { alert("Harap isi nama pemesan!"); return; }
+  if (!tgl) { alert("Harap pilih tanggal pengambilan!"); return; }
 
+  const btnWA = document.querySelector("#modal-checkout button");
+  btnWA.innerText = "Memproses Pesanan & Potong Stok...";
+  btnWA.disabled = true;
+
+  // Siapkan data item yang mau dipotong stoknya
+  const itemsToDeduct = [];
+  Object.values(cart).forEach(i => {
+    if (i.qty > 0) {
+      itemsToDeduct.push({
+        sku: i.SKU,
+        nama: i.Nama,
+        qty: i.qty
+      });
+    }
+  });
+
+  // 1. Tembak data ke Google Apps Script buat potong stok & catat transaksi
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      tipe: "Pemesanan Katalog (WA)",
+      items: itemsToDeduct
+    })
+  })
+  .then(res => res.json())
+  .then(resData => {
+    // 2. Setelah stok terpotong di Google Sheet, lanjut redirect ke WhatsApp
     const tglFormatted = new Date(tgl).toLocaleDateString('id-ID', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
@@ -276,8 +303,26 @@
     });
 
     text += `%0A*TOTAL BAYAR: Rp ${total.toLocaleString('id-ID')}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
-    window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
+    
+    // Reset Cart & Tutup Modal
+    cart = {};
+    updateCartBar();
     closeModal();
+    btnWA.innerText = "Kirim Pesanan ke WhatsApp";
+    btnWA.disabled = false;
+
+    // Buka WhatsApp
+    window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
+    
+    // Refresh Tampilan Katalog
+    location.reload();
+  })
+  .catch(err => {
+    alert("Gagal memproses stok, tapi tetap membuka WhatsApp...");
+    window.open(`https://wa.me/${NOMOR_WA}?text=Pesanan_Manual`, '_blank');
+    btnWA.innerText = "Kirim Pesanan ke WhatsApp";
+    btnWA.disabled = false;
+  });
   }
 </script>
 </body>
