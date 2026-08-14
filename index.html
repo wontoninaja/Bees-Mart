@@ -1,624 +1,460 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bee's Mart - Solusi Kebutuhan Belanja Anda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      /* Custom Styling Nuansa Bee's Mart */
-      :root {
-        --bm-yellow: #f5a623;
-        --bm-yellow-dark: #d98207;
-        --bm-brown: #4a2c11;
-        --bm-brown-light: #6e431f;
-        --bm-bg: #fdfbf7;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee's Mart - Solusi Kebutuhan Belanja Anda</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bm-yellow: #f5a623;
+      --bm-yellow-dark: #d98207;
+      --bm-brown: #4a2c11;
+      --bm-brown-light: #6e431f;
+      --bm-bg: #fdfbf7;
+    }
 
-      body {
-        background-color: var(--bm-bg);
-        /* Subtle Honeycomb Pattern Pattern */
-        background-image:
-          radial-gradient(#f5a623 0.65px, transparent 0.65px),
-          radial-gradient(#f5a623 0.65px, #fdfbf7 0.65px);
-        background-size: 26px 26px;
-        background-position:
-          0 0,
-          13px 13px;
+    body {
+      background-color: var(--bm-bg);
+      background-image: radial-gradient(#f5a623 0.65px, transparent 0.65px), radial-gradient(#f5a623 0.65px, #fdfbf7 0.65px);
+      background-size: 26px 26px;
+      background-position: 0 0, 13px 13px;
+      color: #332211;
+    }
 
-        color: #332211;
-      }
+    .bg-bm-brown { background-color: var(--bm-brown); }
+    .text-bm-brown { color: var(--bm-brown); }
+    .border-bm-brown { border-color: var(--bm-brown); }
 
-      .bg-bm-brown {
-        background-color: var(--bm-brown);
-      }
-      .text-bm-brown {
-        color: var(--bm-brown);
-      }
-      .border-bm-brown {
-        border-color: var(--bm-brown);
-      }
+    .honeycomb-card {
+      background: #ffffff;
+      border: 1px solid #f3e8d7;
+      box-shadow: 0 4px 15px -3px rgba(74, 44, 17, 0.05);
+      transition: all 0.2s ease-in-out;
+    }
+    .honeycomb-card:hover {
+      border-color: var(--bm-yellow);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px -4px rgba(245, 166, 35, 0.25);
+    }
 
-      .bg-bm-yellow {
-        background-color: var(--bm-yellow);
-      }
-      .text-bm-yellow {
-        color: var(--bm-yellow);
-      }
-      .border-bm-yellow {
-        border-color: var(--bm-yellow);
-      }
+    /* Hide scrollbar for horizontal categories */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="antialiased pb-32">
 
-      .honeycomb-card {
-        background: #ffffff;
-        border: 1px solid #f3e8d7;
-        box-shadow: 0 4px 15px -3px rgba(74, 44, 17, 0.05);
-        transition: all 0.2s ease-in-out;
-      }
-      .honeycomb-card:hover {
-        border-color: var(--bm-yellow);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px -4px rgba(245, 166, 35, 0.2);
-      }
+  <!-- Header Utama Bee's Mart -->
+  <header class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-amber-200/60 z-20 shadow-sm">
+    <!-- Top Branding Bar -->
+    <div class="bg-bm-brown text-amber-100 py-1.5 px-4 text-center text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5">
+      <i class="fa-solid fa-star text-amber-400"></i>
+      <span>Berdampak - Bermanfaat | Solusi Kebutuhan Belanja Anda</span>
+    </div>
 
-      .badge-stok-ada {
-        background-color: #fef3c7;
-        color: #92400e;
-      }
-      .badge-stok-banyak {
-        background-color: #ecfdf5;
-        color: #065f46;
-      }
-      .badge-stok-habis {
-        background-color: #fee2e2;
-        color: #991b1b;
-      }
-    </style>
-  </head>
-  <body class="antialiased pb-32">
-    <!-- Header Utama Bee's Mart -->
-    <header
-      class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-amber-200/60 z-20 shadow-sm"
-    >
-      <!-- Top Branding Bar -->
-      <div
-        class="bg-bm-brown text-amber-100 py-1 px-4 text-center text-[10px] font-semibold tracking-wider uppercase flex items-center justify-center gap-1.5"
-      >
-        <i class="fa-solid fa-hexagon-nodes text-amber-400"></i>
-        <span>Berdampak - Bermanfaat | Solusi Kebutuhan Belanja Anda</span>
-      </div>
-
-      <div
-        class="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3"
-      >
-        <div class="flex items-center gap-2.5">
-          <!-- Logo Bee's Mart di Modal PIN Kasir -->
-<div class="w-14 h-14 rounded-full overflow-hidden mx-auto mb-3 border-2 border-amber-400 shadow-sm bg-white p-0.5">
-  <img src="logo-bees-mart.jpg" alt="Bee's Mart Logo" class="w-full h-full object-cover rounded-full">
-</div>
-          <div>
-            <h1
-              class="font-extrabold text-base leading-tight text-bm-brown tracking-tight"
-            >
-              Bee's Mart
-            </h1>
-            <p class="text-[10px] text-amber-800/80 font-medium">
-              Jakarta Timur 1 • Katalog Online
-            </p>
-          </div>
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- Logo dari Repo -->
+        <div class="w-11 h-11 rounded-full overflow-hidden shadow-md border-2 border-amber-400 bg-white flex items-center justify-center shrink-0">
+          <img src="logo-bees-mart.jpg" alt="Bee's Mart Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100?text=Bee%27s+Mart'">
         </div>
-
-        <!-- Tombol Akses Kasir (Memicu Modal Custom) -->
-        <button
-          onclick="bukaModalKasir()"
-          class="text-xs bg-amber-50 hover:bg-amber-100 text-bm-brown border border-amber-200 font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-95"
-        >
-          <i class="fa-solid fa-lock text-amber-600"></i> Kasir
-        </button>
-      </div>
-
-      <!-- Search Box -->
-      <div class="max-w-md mx-auto px-4 pb-3">
-        <div class="relative">
-          <i
-            class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-700/50 text-xs"
-          ></i>
-          <input
-            type="text"
-            id="search"
-            oninput="filterProduk()"
-            placeholder="Cari barang kebutuhan kamu..."
-            class="w-full bg-amber-50/50 border border-amber-200/80 pl-9 pr-4 py-2.5 rounded-xl text-sm text-bm-brown focus:ring-2 focus:ring-amber-400 focus:bg-white outline-none transition placeholder:text-amber-800/40"
-          />
-        </div>
-      </div>
-    </header>
-
-    <!-- Container List Produk -->
-    <main class="max-w-4xl mx-auto p-4">
-      <div id="loading" class="text-center py-16">
-        <div
-          class="inline-block w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"
-        ></div>
-        <p class="text-xs text-bm-brown font-semibold mt-3">
-          Menyiapkan produk segar & hemat...
-        </p>
-      </div>
-
-      <div
-        id="product-list"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5"
-      ></div>
-    </main>
-
-    <!-- Floating Cart Summary -->
-    <div
-      id="cart-bar"
-      class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 border-amber-300 p-4 shadow-2xl z-30 hidden"
-    >
-      <div class="max-w-md mx-auto flex items-center justify-between gap-3">
         <div>
-          <p class="text-[11px] text-amber-900 font-medium">
-            <span id="cart-count" class="font-extrabold text-amber-600">0</span>
-            Barang dipilih
+          <h1 class="font-extrabold text-base leading-tight text-bm-brown tracking-tight">Bee's Mart</h1>
+          <p class="text-[10px] text-amber-800/80 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Jakarta Timur 1
           </p>
-          <p class="text-lg font-black text-bm-brown" id="cart-total">Rp 0</p>
         </div>
-        <button
-          onclick="openModal()"
-          class="bg-amber-400 hover:bg-amber-500 text-bm-brown font-extrabold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2 active:scale-95 text-sm border border-amber-300"
-        >
-          <i class="fa-solid fa-basket-shopping"></i> Lanjut Pesan
-        </button>
+      </div>
+
+      <!-- Tombol Kasir -->
+      <button onclick="bukaModalKasir()" class="text-xs bg-amber-50 hover:bg-amber-100 text-bm-brown border border-amber-300 font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-95">
+        <i class="fa-solid fa-user-shield text-amber-600"></i> Kasir
+      </button>
+    </div>
+
+    <!-- Search Box -->
+    <div class="max-w-md mx-auto px-4 pb-3">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-700/50 text-xs"></i>
+        <input type="text" id="search" oninput="filterProduk()" placeholder="Cari barang kebutuhan kamu..." 
+          class="w-full bg-amber-50/50 border border-amber-200/80 pl-9 pr-4 py-2.5 rounded-xl text-sm text-bm-brown focus:ring-2 focus:ring-amber-400 focus:bg-white outline-none transition placeholder:text-amber-800/40">
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Konten Utama -->
+  <main class="max-w-4xl mx-auto p-4 space-y-4">
+
+    <!-- Promo Banner (Biar Tampilan Nggak Sepi) -->
+    <div class="bg-gradient-to-r from-amber-500 to-amber-400 rounded-2xl p-4 text-bm-brown shadow-md relative overflow-hidden border border-amber-300">
+      <div class="absolute -right-4 -bottom-4 text-amber-300/40 text-8xl">
+        <i class="fa-solid fa-basket-shopping"></i>
+      </div>
+      <div class="relative z-10 max-w-[80%]">
+        <span class="bg-bm-brown text-amber-300 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md">Promo Hari Ini</span>
+        <h2 class="font-black text-lg leading-tight mt-1 text-bm-brown">Belanja Hemat & Lengkap!</h2>
+        <p class="text-xs font-semibold text-bm-brown/80 mt-0.5">Pesan online, ambil langsung tanpa antre di lokasi terdekat.</p>
       </div>
     </div>
 
-    <!-- Modal Checkout -->
-    <div
-      id="modal-checkout"
-      class="fixed inset-0 bg-bm-brown/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden"
-    >
-      <div
-        class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto border border-amber-200"
-      >
-        <div
-          class="flex justify-between items-center pb-3 border-b border-amber-100"
-        >
-          <div class="flex items-center gap-2">
-            <i class="fa-solid fa-clipboard-check text-amber-500"></i>
-            <h3 class="font-bold text-bm-brown text-base">Detail Pemesanan</h3>
-          </div>
-          <button
-            onclick="closeModal()"
-            class="text-slate-400 hover:text-slate-600 p-1"
-          >
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
+    <!-- Quick Stats Bar (Biar Lebih Rame) -->
+    <div class="grid grid-cols-2 gap-2 text-center text-xs">
+      <div class="bg-white border border-amber-200 p-2.5 rounded-xl shadow-sm flex items-center gap-2 justify-center">
+        <i class="fa-solid fa-truck-ramp-box text-amber-500 text-base"></i>
+        <div class="text-left">
+          <p class="text-[9px] text-slate-400 font-bold uppercase">Stok Selalu Update</p>
+          <p class="font-extrabold text-bm-brown text-xs">Realtime System</p>
         </div>
-
-        <div class="py-4 space-y-4">
-          <!-- Nama Pemesan -->
-          <div>
-            <label
-              class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-1"
-              >Nama Pemesan:</label
-            >
-            <input
-              type="text"
-              id="nama-pemesan"
-              placeholder="Masukkan nama kamu..."
-              class="w-full bg-amber-50/30 border border-amber-200 rounded-xl p-2.5 text-sm outline-none focus:border-amber-400 focus:bg-white text-bm-brown"
-            />
-          </div>
-
-          <!-- Lokasi Pengambilan -->
-          <div>
-            <label
-              class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-2"
-              >Lokasi Pengambilan Barang:</label
-            >
-            <div class="grid grid-cols-1 gap-2">
-              <label
-                class="flex items-center gap-3 p-3 border border-amber-200/80 rounded-xl cursor-pointer hover:bg-amber-50/50 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/80 transition"
-              >
-                <input
-                  type="radio"
-                  name="lokasi"
-                  value="Sekretariat Cibubur"
-                  checked
-                  class="accent-amber-500"
-                />
-                <div>
-                  <p class="text-xs font-bold text-bm-brown">
-                    Sekretariat Cibubur
-                  </p>
-                  <p class="text-[10px] text-slate-500">
-                    Ambil sendiri di kantor Cibubur
-                  </p>
-                </div>
-              </label>
-              <label
-                class="flex items-center gap-3 p-3 border border-amber-200/80 rounded-xl cursor-pointer hover:bg-amber-50/50 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/80 transition"
-              >
-                <input
-                  type="radio"
-                  name="lokasi"
-                  value="Pulogadung (Perhubungan)"
-                  class="accent-amber-500"
-                />
-                <div>
-                  <p class="text-xs font-bold text-bm-brown">
-                    Pulogadung (Perhubungan)
-                  </p>
-                  <p class="text-[10px] text-slate-500">
-                    Ambil sendiri di kantor Pulogadung
-                  </p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Tanggal Pengambilan -->
-          <div>
-            <label
-              class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-1"
-              >Tanggal Pengambilan:</label
-            >
-            <input
-              type="date"
-              id="tanggal-pengambilan"
-              class="w-full bg-amber-50/30 border border-amber-200 rounded-xl p-2.5 text-sm outline-none focus:border-amber-400 focus:bg-white text-bm-brown"
-            />
-          </div>
-        </div>
-
-        <button
-          id="btn-checkout-wa"
-          onclick="checkoutWA()"
-          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm active:scale-95 disabled:opacity-50"
-        >
-          <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke
-          WhatsApp
-        </button>
       </div>
-    </div>
-
-    <!-- MODAL CUSTOM PIN KASIR (Gantikan Pop-Up Browser Jelek) -->
-    <div
-      id="modal-pin-kasir"
-      class="fixed inset-0 bg-bm-brown/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
-    >
-      <div
-        class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200"
-      >
-        <div
-          class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-amber-600 text-xl border border-amber-300"
-        >
-          <i class="fa-solid fa-user-shield"></i>
-        </div>
-        <h3 class="font-extrabold text-bm-brown text-base">
-          Akses Khusus Kasir
-        </h3>
-        <p class="text-[11px] text-slate-500 mt-1 mb-4">
-          Masukkan PIN Toko untuk masuk ke menu transaksi kasir
-        </p>
-
-        <input
-          type="password"
-          id="input-pin-kasir"
-          placeholder="• • • •"
-          maxlength="8"
-          class="w-full text-center tracking-widest text-xl font-black bg-amber-50/60 border border-amber-300 rounded-xl py-2.5 mb-2 outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white text-bm-brown"
-        />
-
-        <p
-          id="pin-error-msg"
-          class="text-[11px] text-rose-500 font-semibold hidden mb-3"
-        >
-          PIN Salah! Silakan coba lagi.
-        </p>
-
-        <div class="grid grid-cols-2 gap-2 mt-2">
-          <button
-            onclick="tutupModalKasir()"
-            class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition"
-          >
-            Batal
-          </button>
-          <button
-            onclick="verifikasiPIN()"
-            class="bg-amber-400 hover:bg-amber-500 text-bm-brown font-extrabold py-2.5 rounded-xl text-xs transition shadow-sm"
-          >
-            Masuk
-          </button>
+      <div class="bg-white border border-amber-200 p-2.5 rounded-xl shadow-sm flex items-center gap-2 justify-center">
+        <i class="fa-solid fa-store text-amber-500 text-base"></i>
+        <div class="text-left">
+          <p class="text-[9px] text-slate-400 font-bold uppercase">Lokasi Ambil</p>
+          <p class="font-extrabold text-bm-brown text-xs">Cibubur & Pulogadung</p>
         </div>
       </div>
     </div>
 
-    <script>
-      const API_URL =
-        "https://script.google.com/macros/s/AKfycbx7iQEVKtryDmAkBojsDvoPS6faRKwpTfdY4Is6LvE2nirmPqKXZ4SAyddwGeI7tVEK/exec";
-      const NOMOR_WA = "628889976983";
-      const PIN_KASIR = "494949"; // PIN Kasir kamu
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+      <div class="inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-xs text-bm-brown font-semibold mt-3">Menyiapkan produk segar & hemat...</p>
+    </div>
 
-      let allProducts = [];
-      let cart = {};
+    <!-- Grid Produk -->
+    <div id="product-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5"></div>
+  </main>
 
-      document.getElementById("tanggal-pengambilan").valueAsDate = new Date();
+  <!-- Floating Cart Summary -->
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 border-amber-300 p-4 shadow-2xl z-30 hidden">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+      <div>
+        <p class="text-[11px] text-amber-900 font-medium"><span id="cart-count" class="font-extrabold text-amber-600">0</span> Barang dipilih</p>
+        <p class="text-lg font-black text-bm-brown" id="cart-total">Rp 0</p>
+      </div>
+      <button onclick="openModal()" class="bg-amber-400 hover:bg-amber-500 text-bm-brown font-extrabold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2 active:scale-95 text-sm border border-amber-300">
+        <i class="fa-solid fa-basket-shopping"></i> Lanjut Pesan
+      </button>
+    </div>
+  </div>
 
-      // KONTROL MODAL PIN KASIR CUSTOM
-      function bukaModalKasir() {
-        document.getElementById("input-pin-kasir").value = "";
-        document.getElementById("pin-error-msg").classList.add("hidden");
-        document.getElementById("modal-pin-kasir").classList.remove("hidden");
-        setTimeout(
-          () => document.getElementById("input-pin-kasir").focus(),
-          100,
-        );
-      }
+  <!-- Modal Checkout -->
+  <div id="modal-checkout" class="fixed inset-0 bg-bm-brown/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto border border-amber-200">
+      <div class="flex justify-between items-center pb-3 border-b border-amber-100">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-amber-500"></i>
+          <h3 class="font-bold text-bm-brown text-base">Detail Pemesanan</h3>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
 
-      function tutupModalKasir() {
-        document.getElementById("modal-pin-kasir").classList.add("hidden");
-      }
+      <div class="py-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-1">Nama Pemesan:</label>
+          <input type="text" id="nama-pemesan" placeholder="Masukkan nama kamu..." class="w-full bg-amber-50/30 border border-amber-200 rounded-xl p-2.5 text-sm outline-none focus:border-amber-400 focus:bg-white text-bm-brown">
+        </div>
 
-      function verifikasiPIN() {
-        const inputPin = document.getElementById("input-pin-kasir").value;
-        if (inputPin === PIN_KASIR) {
-          window.location.href = "/kasir.html";
-        } else {
-          document.getElementById("pin-error-msg").classList.remove("hidden");
-          document.getElementById("input-pin-kasir").value = "";
-          document.getElementById("input-pin-kasir").focus();
-        }
-      }
+        <div>
+          <label class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-2">Lokasi Pengambilan Barang:</label>
+          <div class="grid grid-cols-1 gap-2">
+            <label class="flex items-center gap-3 p-3 border border-amber-200/80 rounded-xl cursor-pointer hover:bg-amber-50/50 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/80 transition">
+              <input type="radio" name="lokasi" value="Sekretariat Cibubur" checked class="accent-amber-500">
+              <div>
+                <p class="text-xs font-bold text-bm-brown">Sekretariat Cibubur</p>
+                <p class="text-[10px] text-slate-500">Ambil sendiri di kantor Cibubur</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 p-3 border border-amber-200/80 rounded-xl cursor-pointer hover:bg-amber-50/50 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/80 transition">
+              <input type="radio" name="lokasi" value="Pulogadung (Perhubungan)" class="accent-amber-500">
+              <div>
+                <p class="text-xs font-bold text-bm-brown">Pulogadung (Perhubungan)</p>
+                <p class="text-[10px] text-slate-500">Ambil sendiri di kantor Pulogadung</p>
+              </div>
+            </label>
+          </div>
+        </div>
 
-      // Enter key support untuk PIN
-      document
-        .getElementById("input-pin-kasir")
-        .addEventListener("keyup", function (e) {
-          if (e.key === "Enter") verifikasiPIN();
-        });
+        <div>
+          <label class="block text-xs font-bold text-bm-brown uppercase tracking-wider mb-1">Tanggal Pengambilan:</label>
+          <input type="date" id="tanggal-pengambilan" class="w-full bg-amber-50/30 border border-amber-200 rounded-xl p-2.5 text-sm outline-none focus:border-amber-400 focus:bg-white text-bm-brown">
+        </div>
+      </div>
 
-      fetch(API_URL)
-        .then((res) => res.json())
-        .then((data) => {
-          allProducts = data.map((item, index) => {
-            const idUnik =
-              item.SKU && item.SKU !== "NO-SKU" && item.SKU.trim() !== ""
-                ? item.SKU.toString().trim()
-                : "PROD_" + index;
-            return { ...item, idUnik: idUnik };
-          });
+      <button id="btn-checkout-wa" onclick="checkoutWA()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm active:scale-95 disabled:opacity-50">
+        <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp
+      </button>
+    </div>
+  </div>
 
-          document.getElementById("loading").classList.add("hidden");
-          renderProduk(allProducts);
-        })
-        .catch((err) => {
-          document.getElementById("loading").innerHTML =
-            `<p class="text-xs text-rose-500 font-semibold">Gagal memuat data produk.</p>`;
-        });
+  <!-- MODAL CUSTOM PIN KASIR -->
+  <div id="modal-pin-kasir" class="fixed inset-0 bg-bm-brown/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200">
+      <div class="w-14 h-14 rounded-full overflow-hidden mx-auto mb-3 border-2 border-amber-400 shadow-sm bg-white p-0.5">
+        <img src="logo-bees-mart.jpg" alt="Bee's Mart Logo" class="w-full h-full object-cover rounded-full" onerror="this.src='https://via.placeholder.com/100?text=Bee%27s+Mart'">
+      </div>
+      <h3 class="font-extrabold text-bm-brown text-base">Akses Khusus Kasir</h3>
+      <p class="text-[11px] text-slate-500 mt-1 mb-4">Masukkan PIN Toko untuk masuk ke menu transaksi kasir</p>
 
-      function renderProduk(list) {
-        const container = document.getElementById("product-list");
-        container.innerHTML = "";
+      <input type="password" id="input-pin-kasir" placeholder="• • • •" maxlength="8" 
+        class="w-full text-center tracking-widest text-xl font-black bg-amber-50/60 border border-amber-300 rounded-xl py-2.5 mb-2 outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white text-bm-brown">
+      
+      <p id="pin-error-msg" class="text-[11px] text-rose-500 font-semibold hidden mb-3">PIN Salah! Silakan coba lagi.</p>
 
-        if (list.length === 0) {
-          container.innerHTML = `<p class="col-span-full text-center text-xs text-amber-800/60 py-12 font-medium">Produk tidak ditemukan.</p>`;
-          return;
-        }
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <button onclick="tutupModalKasir()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">Batal</button>
+        <button onclick="verifikasiPIN()" class="bg-amber-400 hover:bg-amber-500 text-bm-brown font-extrabold py-2.5 rounded-xl text-xs transition shadow-sm">Masuk</button>
+      </div>
+    </div>
+  </div>
 
-        const fragment = document.createDocumentFragment();
+  <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbx7iQEVKtryDmAkBojsDvoPS6faRKwpTfdY4Is6LvE2nirmPqKXZ4SAyddwGeI7tVEK/exec"; 
+  const NOMOR_WA = "628889976983";
+  const PIN_KASIR = "494949";
 
-        list.forEach((item) => {
-          const stok = Number(item.Stok) || 0;
-          const stokAda = stok > 0;
-          const qtyInCart = cart[item.idUnik] ? cart[item.idUnik].qty : 0;
+  let allProducts = [];
+  let cart = {};
 
-          const card = document.createElement("div");
-          card.className =
-            "honeycomb-card p-3 rounded-2xl flex flex-col justify-between relative overflow-hidden";
+  document.getElementById("tanggal-pengambilan").valueAsDate = new Date();
 
-          card.innerHTML = `
+  function bukaModalKasir() {
+    document.getElementById("input-pin-kasir").value = "";
+    document.getElementById("pin-error-msg").classList.add("hidden");
+    document.getElementById("modal-pin-kasir").classList.remove("hidden");
+    setTimeout(() => document.getElementById("input-pin-kasir").focus(), 100);
+  }
+
+  function tutupModalKasir() {
+    document.getElementById("modal-pin-kasir").classList.add("hidden");
+  }
+
+  function verifikasiPIN() {
+    const inputPin = document.getElementById("input-pin-kasir").value;
+    if (inputPin === PIN_KASIR) {
+      window.location.href = "/kasir.html";
+    } else {
+      document.getElementById("pin-error-msg").classList.remove("hidden");
+      document.getElementById("input-pin-kasir").value = "";
+      document.getElementById("input-pin-kasir").focus();
+    }
+  }
+
+  document.getElementById("input-pin-kasir").addEventListener("keyup", function(e) {
+    if (e.key === "Enter") verifikasiPIN();
+  });
+
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      allProducts = data.map((item, index) => {
+        const idUnik = (item.SKU && item.SKU !== 'NO-SKU' && item.SKU.trim() !== '') 
+          ? item.SKU.toString().trim() 
+          : 'PROD_' + index;
+        return { ...item, idUnik: idUnik };
+      });
+
+      document.getElementById("loading").classList.add("hidden");
+      renderProduk(allProducts);
+    })
+    .catch(err => {
+      document.getElementById("loading").innerHTML = `<p class="text-xs text-rose-500 font-semibold">Gagal memuat data produk.</p>`;
+    });
+
+  function renderProduk(list) {
+    const container = document.getElementById("product-list");
+    container.innerHTML = "";
+
+    if (list.length === 0) {
+      container.innerHTML = `<p class="col-span-full text-center text-xs text-amber-800/60 py-12 font-medium">Produk tidak ditemukan.</p>`;
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    list.forEach(item => {
+      const stok = Number(item.Stok) || 0;
+      const stokAda = stok > 0;
+      const qtyInCart = cart[item.idUnik] ? cart[item.idUnik].qty : 0;
+
+      const card = document.createElement("div");
+      card.className = "honeycomb-card p-3 rounded-2xl flex flex-col justify-between relative overflow-hidden";
+
+      card.innerHTML = `
         <div>
           <div class="flex items-center justify-between gap-1 mb-1.5">
-            <span class="text-[9px] font-extrabold text-amber-800/40 uppercase tracking-wider">${item.SKU && item.SKU !== "" ? item.SKU : "NO-SKU"}</span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${stokAda ? (stok < 5 ? "badge-stok-ada" : "badge-stok-banyak") : "badge-stok-habis"}">
-              ${stokAda ? `Stok: ${stok}` : "Habis"}
+            <span class="text-[9px] font-extrabold text-amber-800/50 uppercase tracking-wider">${item.SKU && item.SKU !== '' ? item.SKU : 'NO-SKU'}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${stokAda ? (stok < 5 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800') : 'bg-rose-100 text-rose-700'}">
+              ${stokAda ? `Stok: ${stok}` : 'Habis'}
             </span>
           </div>
           <h3 class="font-bold text-bm-brown text-xs line-clamp-2 leading-snug">${item.Nama}</h3>
-          <p class="text-[10px] text-amber-800/60 mt-0.5">${item.Berat || "-"}</p>
+          <p class="text-[10px] text-amber-800/60 mt-0.5">${item.Berat || '-'}</p>
         </div>
         
         <div class="mt-3 pt-2 border-t border-amber-100 flex items-center justify-between gap-1">
-          <p class="font-black text-bm-brown text-xs">Rp ${Number(item.Harga).toLocaleString("id-ID")}</p>
+          <p class="font-black text-bm-brown text-xs">Rp ${Number(item.Harga).toLocaleString('id-ID')}</p>
           <div id="btn-container-${item.idUnik}">
             ${renderActionButtons(item.idUnik, stok, qtyInCart)}
           </div>
         </div>
       `;
-          fragment.appendChild(card);
-        });
+      fragment.appendChild(card);
+    });
 
-        container.appendChild(fragment);
-      }
+    container.appendChild(fragment);
+  }
 
-      function renderActionButtons(idUnik, stok, qty) {
-        if (stok <= 0) {
-          return `<button disabled class="bg-slate-100 text-slate-300 px-3 py-1 rounded-lg text-xs font-medium cursor-not-allowed">Habis</button>`;
-        }
-        if (qty === 0) {
-          return `<button onclick="addToCart('${idUnik}')" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-bm-brown font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-sm border border-amber-300">+ Tambah</button>`;
-        }
-        return `
+  function renderActionButtons(idUnik, stok, qty) {
+    if (stok <= 0) {
+      return `<button disabled class="bg-slate-100 text-slate-300 px-3 py-1 rounded-lg text-xs font-medium cursor-not-allowed">Habis</button>`;
+    }
+    if (qty === 0) {
+      return `<button onclick="addToCart('${idUnik}')" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-bm-brown font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-sm border border-amber-300">+ Tambah</button>`;
+    }
+    return `
       <div class="flex items-center bg-amber-50 rounded-xl p-0.5 border border-amber-300">
         <button onclick="removeFromCart('${idUnik}')" class="bg-white text-bm-brown w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shadow-sm hover:bg-amber-100 active:scale-90 transition">-</button>
         <span class="text-xs font-extrabold px-2 text-bm-brown">${qty}</span>
         <button onclick="addToCart('${idUnik}')" class="bg-amber-400 hover:bg-amber-500 text-bm-brown w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shadow-sm active:scale-90 transition">+</button>
       </div>`;
-      }
+  }
 
-      function updateSingleButton(idUnik) {
-        const item = allProducts.find((p) => p.idUnik === idUnik);
-        if (!item) return;
-        const qty = cart[idUnik] ? cart[idUnik].qty : 0;
-        const btnContainer = document.getElementById(`btn-container-${idUnik}`);
-        if (btnContainer) {
-          btnContainer.innerHTML = renderActionButtons(
-            idUnik,
-            Number(item.Stok) || 0,
-            qty,
-          );
+  function updateSingleButton(idUnik) {
+    const item = allProducts.find(p => p.idUnik === idUnik);
+    if (!item) return;
+    const qty = cart[idUnik] ? cart[idUnik].qty : 0;
+    const btnContainer = document.getElementById(`btn-container-${idUnik}`);
+    if (btnContainer) {
+      btnContainer.innerHTML = renderActionButtons(idUnik, Number(item.Stok) || 0, qty);
+    }
+  }
+
+  function addToCart(idUnik) {
+    const item = allProducts.find(p => p.idUnik === idUnik);
+    if (!cart[idUnik]) cart[idUnik] = { ...item, qty: 0 };
+    if (cart[idUnik].qty < item.Stok) {
+      cart[idUnik].qty++;
+      updateCartBar();
+      updateSingleButton(idUnik);
+    } else {
+      alert("Stok maksimal tercapai!");
+    }
+  }
+
+  function removeFromCart(idUnik) {
+    if (cart[idUnik] && cart[idUnik].qty > 0) {
+      cart[idUnik].qty--;
+      if (cart[idUnik].qty === 0) delete cart[idUnik];
+      updateCartBar();
+      updateSingleButton(idUnik);
+    }
+  }
+
+  function filterProduk() {
+    const q = document.getElementById("search").value.toLowerCase();
+    const filtered = allProducts.filter(p => p.Nama.toLowerCase().includes(q) || (p.SKU && p.SKU.toLowerCase().includes(q)));
+    renderProduk(filtered);
+  }
+
+  function updateCartBar() {
+    let total = 0;
+    let count = 0;
+    Object.values(cart).forEach(i => {
+      total += i.Harga * i.qty;
+      count += i.qty;
+    });
+
+    const cartBar = document.getElementById("cart-bar");
+    if (count > 0) {
+      cartBar.classList.remove("hidden");
+      document.getElementById("cart-count").innerText = count;
+      document.getElementById("cart-total").innerText = "Rp " + total.toLocaleString('id-ID');
+    } else {
+      cartBar.classList.add("hidden");
+    }
+  }
+
+  function openModal() { document.getElementById("modal-checkout").classList.remove("hidden"); }
+  function closeModal() { document.getElementById("modal-checkout").classList.add("hidden"); }
+
+  function checkoutWA() {
+    const nama = document.getElementById("nama-pemesan").value.trim();
+    const tgl = document.getElementById("tanggal-pengambilan").value;
+
+    if (!nama) { alert("Harap isi nama pemesan!"); return; }
+    if (!tgl) { alert("Harap pilih tanggal pengambilan!"); return; }
+
+    const btnWA = document.getElementById("btn-checkout-wa");
+    btnWA.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Membuka WA...`;
+    btnWA.disabled = true;
+
+    const lokasi = document.querySelector('input[name="lokasi"]:checked').value;
+    const tglFormatted = new Date(tgl).toLocaleDateString('id-ID', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    const itemsToDeduct = [];
+    let rincianTextArr = [];
+    let total = 0;
+
+    Object.values(cart).forEach(i => {
+      if (i.qty > 0) {
+        const sub = i.Harga * i.qty;
+        total += sub;
+        itemsToDeduct.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
+        rincianTextArr.push(`${i.Nama} (${i.qty}x)`);
+      }
+    });
+
+    if (itemsToDeduct.length === 0) {
+      alert("Keranjang belanjaan masih kosong!");
+      btnWA.disabled = false;
+      btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
+      return;
+    }
+
+    let text = `*PESANAN BARU - BEE'S MART*%0A`;
+    text += `-----------------------------------%0A`;
+    text += `👤 *Nama:* ${nama}%0A`;
+    text += `📍 *Lokasi Ambil:* ${lokasi}%0A`;
+    text += `📅 *Tanggal Ambil:* ${tglFormatted}%0A`;
+    text += `-----------------------------------%0A%0A`;
+    text += `*Rincian Barang:*%0A`;
+
+    itemsToDeduct.forEach(i => {
+      text += `• ${i.nama} (${i.qty}x)%0A`;
+    });
+    text += `%0A*TOTAL BAYAR: Rp ${total.toLocaleString('id-ID')}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
+
+    window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, '_blank');
+
+    fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        tipe: "Pemesanan Katalog (WA)",
+        items: itemsToDeduct,
+        pemesan: {
+          nama: nama,
+          lokasi: lokasi,
+          tanggalAmbil: tglFormatted,
+          rincianText: rincianTextArr.join(", "),
+          totalBayar: total
         }
-      }
-
-      function addToCart(idUnik) {
-        const item = allProducts.find((p) => p.idUnik === idUnik);
-        if (!cart[idUnik]) cart[idUnik] = { ...item, qty: 0 };
-        if (cart[idUnik].qty < item.Stok) {
-          cart[idUnik].qty++;
-          updateCartBar();
-          updateSingleButton(idUnik);
-        } else {
-          alert("Stok maksimal tercapai!");
-        }
-      }
-
-      function removeFromCart(idUnik) {
-        if (cart[idUnik] && cart[idUnik].qty > 0) {
-          cart[idUnik].qty--;
-          if (cart[idUnik].qty === 0) delete cart[idUnik];
-          updateCartBar();
-          updateSingleButton(idUnik);
-        }
-      }
-
-      function filterProduk() {
-        const q = document.getElementById("search").value.toLowerCase();
-        const filtered = allProducts.filter(
-          (p) =>
-            p.Nama.toLowerCase().includes(q) ||
-            (p.SKU && p.SKU.toLowerCase().includes(q)),
-        );
-        renderProduk(filtered);
-      }
-
-      function updateCartBar() {
-        let total = 0;
-        let count = 0;
-        Object.values(cart).forEach((i) => {
-          total += i.Harga * i.qty;
-          count += i.qty;
-        });
-
-        const cartBar = document.getElementById("cart-bar");
-        if (count > 0) {
-          cartBar.classList.remove("hidden");
-          document.getElementById("cart-count").innerText = count;
-          document.getElementById("cart-total").innerText =
-            "Rp " + total.toLocaleString("id-ID");
-        } else {
-          cartBar.classList.add("hidden");
-        }
-      }
-
-      function openModal() {
-        document.getElementById("modal-checkout").classList.remove("hidden");
-      }
-      function closeModal() {
-        document.getElementById("modal-checkout").classList.add("hidden");
-      }
-
-      function checkoutWA() {
-        const nama = document.getElementById("nama-pemesan").value.trim();
-        const tgl = document.getElementById("tanggal-pengambilan").value;
-
-        if (!nama) {
-          alert("Harap isi nama pemesan!");
-          return;
-        }
-        if (!tgl) {
-          alert("Harap pilih tanggal pengambilan!");
-          return;
-        }
-
-        const btnWA = document.getElementById("btn-checkout-wa");
-        btnWA.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Membuka WA...`;
-        btnWA.disabled = true;
-
-        const lokasi = document.querySelector(
-          'input[name="lokasi"]:checked',
-        ).value;
-        const tglFormatted = new Date(tgl).toLocaleDateString("id-ID", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-
-        const itemsToDeduct = [];
-        let rincianTextArr = [];
-        let total = 0;
-
-        Object.values(cart).forEach((i) => {
-          if (i.qty > 0) {
-            const sub = i.Harga * i.qty;
-            total += sub;
-            itemsToDeduct.push({ sku: i.SKU, nama: i.Nama, qty: i.qty });
-            rincianTextArr.push(`${i.Nama} (${i.qty}x)`);
-          }
-        });
-
-        if (itemsToDeduct.length === 0) {
-          alert("Keranjang belanjaan masih kosong!");
-          btnWA.disabled = false;
-          btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
-          return;
-        }
-
-        let text = `*PESANAN BARU - BEE'S MART*%0A`;
-        text += `-----------------------------------%0A`;
-        text += `👤 *Nama:* ${nama}%0A`;
-        text += `📍 *Lokasi Ambil:* ${lokasi}%0A`;
-        text += `📅 *Tanggal Ambil:* ${tglFormatted}%0A`;
-        text += `-----------------------------------%0A%0A`;
-        text += `*Rincian Barang:*%0A`;
-
-        itemsToDeduct.forEach((i) => {
-          text += `• ${i.nama} (${i.qty}x)%0A`;
-        });
-        text += `%0A*TOTAL BAYAR: Rp ${total.toLocaleString("id-ID")}*%0A%0AMohon dikonfirmasi dan disiapkan ya kak!`;
-
-        window.open(`https://wa.me/${NOMOR_WA}?text=${text}`, "_blank");
-
-        fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            tipe: "Pemesanan Katalog (WA)",
-            items: itemsToDeduct,
-            pemesan: {
-              nama: nama,
-              lokasi: lokasi,
-              tanggalAmbil: tglFormatted,
-              rincianText: rincianTextArr.join(", "),
-              totalBayar: total,
-            },
-          }),
-        }).finally(() => {
-          cart = {};
-          updateCartBar();
-          closeModal();
-          btnWA.disabled = false;
-          btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
-          location.reload();
-        });
-      }
-    </script>
-  </body>
+      })
+    }).finally(() => {
+      cart = {};
+      updateCartBar();
+      closeModal();
+      btnWA.disabled = false;
+      btnWA.innerHTML = `<i class="fa-brands fa-whatsapp text-lg"></i> Kirim Pesanan ke WhatsApp`;
+      location.reload();
+    });
+  }
+  </script>
+</body>
 </html>
